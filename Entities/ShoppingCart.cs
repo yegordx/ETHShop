@@ -30,4 +30,10 @@ public class ShoppingCart
         User = user;
         return Result.Success();
     }
+
+    public Result AddCartItem(CartItem item) 
+    { 
+        CartItems.Add(item);
+        return Result.Success();
+    }
 }

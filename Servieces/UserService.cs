@@ -54,6 +54,13 @@ public class UserService : IUserService
         return token;
     }
 
+    public async Task<bool> AddProductToCart(Guid userID, Guid productID) {
+
+        bool result = await _usersRepository.AddProductToCart(userID, productID);
+
+        return result;
+    }
+
     public async Task<IEnumerable<User>> GetAll()
     {
         return await _usersRepository.GetAll();

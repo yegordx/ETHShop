@@ -55,7 +55,7 @@ public class ProductController : ControllerBase
         var products = await _productsService.GetAllAsync();
 
         var productsDto = products
-            .Select(c => new ProductDto(c.ProductName, c.Description, c.PriceETH))
+            .Select(c => new ProductDto(c.ProductID, c.ProductName, c.Description, c.PriceETH))
             .ToList();
 
         var response = new GetProductsResponse(productsDto);
@@ -72,7 +72,7 @@ public class ProductController : ControllerBase
             return NotFound(new { message = "Product not found." });
         }
 
-        var productDto = new ProductDto(product.ProductName, product.Description, product.PriceETH);
+        var productDto = new ProductDto(product.ProductID, product.ProductName, product.Description, product.PriceETH);
         return Ok(productDto);
     }
 

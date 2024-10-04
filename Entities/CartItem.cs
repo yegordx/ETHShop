@@ -5,12 +5,12 @@ namespace ETHShop.Entities;
 public class CartItem
 {
     public CartItem() { }
-    private CartItem(Guid id, Guid cartId, Guid productID, int quantity, DateTime dateAdded, ShoppingCart shoppingCart, Product product) {
+    private CartItem(Guid id, ShoppingCart shoppingCart, Product product) {
         CartItemID = id;
-        CartID = cartId;
-        ProductID = productID;
-        Quantity = quantity;
-        DateAdded = dateAdded;
+        CartID = shoppingCart.CartID;
+        ProductID = product.ProductID;
+        Quantity = 1;
+        DateAdded = DateTime.UtcNow;
         ShoppingCart = shoppingCart;
         Product = product;
     }
@@ -24,10 +24,10 @@ public class CartItem
     public ShoppingCart ShoppingCart { get; }
     public Product Product { get;  }
 
-    public static Result<CartItem> Create(Guid id, Guid cartId, Guid productID, int quantity, DateTime dateAdded, ShoppingCart shoppingCart, Product product)
+    public static CartItem Create(Guid id, ShoppingCart shoppingCart, Product product)
     {
-        var cartItem = new CartItem(id, cartId, productID, quantity, dateAdded, shoppingCart, product);
+        var cartItem = new CartItem(id, shoppingCart, product);
 
-        return Result.Success<CartItem>(cartItem);
+        return cartItem;
     }
 }
