@@ -1,0 +1,27 @@
+services:
+ ShopDb:
+  image: postgres
+  environment:
+    POSTGRES_PASSWORD: egor2573
+    POSTGRES_DB: Shop 
+  ports: 
+   - "5432:5432"
+  volumes:
+   - ./data:/var/lib/postgresql/data
+
+ shop_api:
+  build: .
+  ports: 
+   - "5002:81"
+  environment:
+   - ASPNETCORE_ENVIRONMENT=Compose
+  depends_on:
+   - ShopDb
+
+
+
+
+
+#docker run --name SportClubsDb -e POSTGRES_PASSWORD=egor2573 -p 5432:5432 -v sportclubsdata:/var/lib/postgresql/data -d postgres
+#docker build -t sport_clubs_api .
+#docker run -p 5001:80 -d --name sportclubsapi sport_clubs_api
