@@ -74,8 +74,8 @@ public class ShoppingCartController : ControllerBase
             .Select(ci => new CartItemDto(
                 ci.CartItemID,
                 ci.Product.ProductName,
-                ci.Product.PriceETH * ci.Quantity,
-                ci.Quantity, ci.ProductID)
+                ci.Product.PriceETH,
+                ci.Quantity)
             ).ToList();
 
         return Ok(items);
@@ -127,31 +127,16 @@ public class ShoppingCartController : ControllerBase
         }
 
         // Залежно від параметра 'action' збільшуємо або зменшуємо кількість
-        if (action == "more")
-        {
-            cartItem.Quantity += 1;
-        }
-        else if (action == "less")
-        {
-            if (cartItem.Quantity > 1)
-            {
-                cartItem.Quantity -= 1;
-            }
-            else
-            {
-                return BadRequest(new { message = "Quantity cannot be less than 1." });
-            }
-        }
-        else
-        {
-            return BadRequest(new { message = "Invalid action. Use 'less' or 'more'." });
-        }
+        bool result = cartItem.UpdateQuantity(action);
 
-        
-        _context.CartItems.Update(cartItem);
-        await _context.SaveChangesAsync();
+        if (result)
+        {
+            _context.CartItems.Update(cartItem);
+            await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Cart item quantity updated successfully." });
+            return Ok(new { message = "Cart item quantity updated successfully." });
+        }
+        return BadRequest();
     }
 
     [HttpGet("{cartItemId}")]
@@ -173,9 +158,9 @@ public class ShoppingCartController : ControllerBase
         var response = new CartItemDto(
             cartItem.CartItemID, 
             cartItem.Product.ProductName, 
-            cartItem.Product.PriceETH * cartItem.Quantity, 
-            cartItem.Quantity, 
-            cartItem.Product.ProductID);
+            cartItem.Product.PriceETH, 
+            cartItem.Quantity
+            );
 
         return Ok(response);
     }

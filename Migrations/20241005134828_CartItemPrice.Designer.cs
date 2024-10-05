@@ -3,6 +3,7 @@ using System;
 using ETHShop;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ETHShop.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    partial class ShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241005134828_CartItemPrice")]
+    partial class CartItemPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,6 +39,9 @@ namespace ETHShop.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
+
+                    b.Property<double>("price")
+                        .HasColumnType("double precision");
 
                     b.HasKey("CartItemID");
 
@@ -174,7 +180,7 @@ namespace ETHShop.Migrations
                     b.Property<Guid>("OrderID")
                         .HasColumnType("uuid");
 
-                    b.Property<double>("PricePs")
+                    b.Property<double>("PriceETH")
                         .HasColumnType("double precision");
 
                     b.Property<Guid>("ProductID")
@@ -182,9 +188,6 @@ namespace ETHShop.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
-
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("double precision");
 
                     b.HasKey("OrderItemID");
 
