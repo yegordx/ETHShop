@@ -10,4 +10,6 @@ public class CategoryConfig : IEntityTypeConfiguration<Category>
     {
         builder.HasKey(a=>a.CategoryID);
     }
+
+
 }

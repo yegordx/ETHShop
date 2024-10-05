@@ -14,6 +14,7 @@ public class Category
     public Guid CategoryID { get; set; }
     public string CategoryName { get; set; }
     public string Description { get; set; }
+    public bool isDeleted { get; set; }
 
     // Навігаційна властивість
     public ICollection<Product> Products { get; set; } = new List<Product>();

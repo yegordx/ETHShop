@@ -47,10 +47,7 @@ namespace ETHShop
             
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUsersRepository, UserRepository>();
-            services.AddScoped<IShoppingCartController, ShoppingCartController>();
 
-            services.AddScoped<ICategoriesRepository, CategoriesRepository>();
-            services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ISellersService, SellersService>();
             services.AddScoped<IProductsService, ProductsService>();
 

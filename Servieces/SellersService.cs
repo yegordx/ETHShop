@@ -28,8 +28,8 @@ public class SellersService : ISellersService
         seller.SetUser(user);
 
         await _context.Sellers.AddAsync(seller);
+        await _context.SaveChangesAsync();
         _context.Users.Update(user);
-        _context.Sellers.Update(seller);
 
         await _context.SaveChangesAsync();
 

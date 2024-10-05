@@ -16,7 +16,6 @@ public class UserRepository : IUsersRepository
 
     public async Task Add(User user)
     {
-        // Перевірка на існуючого користувача з таким же Email або UserName
         var existingUser = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == user.Email || u.UserName == user.UserName);
 
@@ -56,37 +55,6 @@ public class UserRepository : IUsersRepository
         return userEntity;
     }
 
-    public async Task<bool> AddProductToCart(Guid userID, Guid productID) 
-    {
-        var product = await _context.Products
-            .FirstOrDefaultAsync(u => u.ProductID == productID);
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.UserId == userID);
-
-        if (product == null || user == null)
-        {
-            return false;
-        }
-
-        var shoppingCart = user.ShoppingCart;
-
-        var cartItem = CartItem.Create(Guid.NewGuid(), shoppingCart, product);
-
-        await _context.CartItems.AddAsync(cartItem);
-
-        await _context.SaveChangesAsync();
-
-        shoppingCart.AddCartItem(cartItem);
-
-        _context.ShoppingCarts.Update(shoppingCart);
-
-        await _context.SaveChangesAsync();
-
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-
-        return true;
-    }
 
     public async Task<IEnumerable<User>> GetAll()
     {

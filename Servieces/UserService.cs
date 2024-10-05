@@ -21,7 +21,7 @@ public class UserService : IUserService
         _usersRepository = usersRepository;
         _jwtProvider = jwtProvider;
     }
-    //string userName, string email, string password, string walletaddress
+
     public async Task<string> Register (Guid id, string userName, string password, string email, string walletAddress)
     {
         var hashedPassword = _passwordHasher.Generate(password);
@@ -52,13 +52,6 @@ public class UserService : IUserService
 
         var token = _jwtProvider.GenerateUserToken(user);
         return token;
-    }
-
-    public async Task<bool> AddProductToCart(Guid userID, Guid productID) {
-
-        bool result = await _usersRepository.AddProductToCart(userID, productID);
-
-        return result;
     }
 
     public async Task<IEnumerable<User>> GetAll()

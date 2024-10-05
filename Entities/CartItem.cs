@@ -17,7 +17,7 @@ public class CartItem
     public Guid CartItemID { get; }
     public Guid CartID { get; }
     public Guid ProductID { get;}
-    public int Quantity { get; }
+    public int Quantity { get; set; }
     public DateTime DateAdded { get; }
 
     // Навігаційні властивості

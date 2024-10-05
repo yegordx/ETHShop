@@ -60,18 +60,6 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpPost("AddToCart")]
-    public async Task<IActionResult> AddProductToCart(AddProductToCartRequest request)
-    {
-        var userID = Guid.Parse(request.UserID);
-        var productID = Guid.Parse(request.ProductID);
-        var result = await _userService.AddProductToCart(userID, productID);
-        if (result)
-        {
-            return Ok();
-        }
-        return BadRequest();
-    }
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
