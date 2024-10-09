@@ -1,4 +1,5 @@
-﻿using ETHShop.Entities;
+﻿using ETHShop.Contracts;
+using ETHShop.Entities;
 namespace ETHShop.Interfaces;
 
 public interface IUsersRepository
@@ -8,4 +9,5 @@ public interface IUsersRepository
     Task<User> GetByEmail(string email);
     Task Update(User user);
     Task Delete(string email);
+    Task<List<OrderDto>> GetOrders(Guid userID);
 }

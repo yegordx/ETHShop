@@ -1,4 +1,5 @@
-﻿using ETHShop.Controllers;
+﻿using ETHShop.Contracts;
+using ETHShop.Controllers;
 using ETHShop.Entities;
 using ETHShop.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +27,9 @@ public class UserRepository : IUsersRepository
 
         var shoppingCart = ShoppingCart.Create(Guid.NewGuid()).Value;
 
-        // Асоціюємо кошик із користувачем
         user.SetShoppingCart(shoppingCart);
         shoppingCart.SetUser(user);
 
-        // Додаємо користувача і кошик до контексту
         await _context.Users.AddAsync(user);
         await _context.ShoppingCarts.AddAsync(shoppingCart);
         await _context.SaveChangesAsync();
@@ -78,5 +77,31 @@ public class UserRepository : IUsersRepository
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<OrderDto>> GetOrders(Guid userID)
+    {
+        var orders = await _context.Orders
+            .Where(o => o.UserID == userID)
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+            .ToListAsync();
+
+        // Перетворення замовлень в DTO
+        var ordersDto = orders.Select(order => new OrderDto(
+            order.OrderID,
+            order.SellerID,
+            order.TotalPriceETH,
+            order.OrderItems.Select(oi => new OrderItemDto(
+                oi.OrderItemID,
+                oi.ProductID,
+                oi.Product.ProductName,
+                oi.Quantity,
+                oi.TotalPrice
+            )).ToList(),
+            order.OrderDate
+        )).ToList();
+
+        return ordersDto;
     }
 }

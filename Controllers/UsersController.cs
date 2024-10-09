@@ -34,7 +34,6 @@ public class UsersController : ControllerBase
                 Expires = DateTime.UtcNow.AddHours(24)
             };
 
-            //Response.Cookies.Append("jwt", token, cookieOptions);
             return Ok(new { token });
         }
         catch (InvalidOperationException ex)
@@ -59,7 +58,15 @@ public class UsersController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+    [HttpGet("getOrders/")]
+    public async Task<IActionResult> GetOrders(string UserID)
+    {
+        var userId = Guid.Parse(UserID);
 
+        var orders = await _userService.GetOrders(userId);
+
+        return Ok(orders);
+    }
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {

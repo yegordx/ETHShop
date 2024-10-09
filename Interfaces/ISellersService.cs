@@ -1,4 +1,5 @@
-﻿using ETHShop.Entities;
+﻿using ETHShop.Contracts;
+using ETHShop.Entities;
 
 namespace ETHShop.Interfaces;
 
@@ -15,4 +16,6 @@ public interface ISellersService
     Task UpdateAsync(Seller seller);
 
     Task DeleteAsync(Guid SellerID);
+
+    Task<List<OrderDto>> GetOrders(Guid sellerID);
 }

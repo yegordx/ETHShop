@@ -18,14 +18,45 @@ public class CategoriesController : ControllerBase
         _context = context;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        // Отримуємо всі категорії, які не видалені
+        var categories = await _context.Categories
+            .Where(c => !c.isDeleted) // Фільтрація за умовою isDeleted = false
+            .Select(c => new
+            {
+                CategoryID = c.CategoryID,
+                CategoryName = c.CategoryName,
+                Description = c.Description
+            })
+            .ToListAsync();
+
+        if (categories == null || categories.Count == 0)
+        {
+            return NotFound(new { message = "No categories found." });
+        }
+
+        return Ok(categories);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateCategoryRequest request)
+    {
+        var category = Category.Create(Guid.NewGuid(), request.CategoryName, request.Description);
+        await _context.Categories.AddAsync(category);
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
     [HttpGet("{categoryId}")]
-    public async Task<IActionResult> Get(string categoryId)
+    public async Task<IActionResult> Details(string categoryId)
     {
         var categoryGuid = Guid.Parse(categoryId);
 
         // Знаходимо категорію
         var category = await _context.Categories
-            .Include(c => c.Products) // Завантажуємо всі продукти
+            .Include(c => c.Products) 
             .FirstOrDefaultAsync(c => c.CategoryID == categoryGuid && !c.isDeleted); 
 
         if (category == null)

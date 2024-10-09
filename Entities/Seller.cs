@@ -27,7 +27,7 @@ public class Seller
     
     public User User { get; set; }
     public ICollection<Product> Products { get; set; }
-    public ICollection<Order> OrdersHistory { get; set; }
+    public ICollection<Order> Orders { get; set; }
 
     public static Seller Create(Guid id, string storeName, string storeDescription, string contactEmail, string contactPhone)
     {

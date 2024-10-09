@@ -12,4 +12,5 @@ public interface IUserService
     Task<User> GetByEmail(string email);
     Task Update(User user);
     Task Delete(string email);
+    Task<List<OrderDto>> GetOrders(Guid userID);
 }

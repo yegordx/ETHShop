@@ -13,10 +13,10 @@ public class OrderConfig  : IEntityTypeConfiguration<Order>
         builder.HasOne(a => a.User)
             .WithMany(a => a.Orders)
             .HasForeignKey(a => a.UserID)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(a=>a.Seller)
-            .WithMany(a=>a.OrdersHistory)
+            .WithMany(a=>a.Orders)
             .HasForeignKey(a=>a.SellerID)
             .OnDelete(DeleteBehavior.SetNull);
     }

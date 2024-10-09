@@ -54,6 +54,11 @@ public class UserService : IUserService
         return token;
     }
 
+    public async Task<List<OrderDto>> GetOrders(Guid userID)
+    {
+        var result = await _usersRepository.GetOrders(userID);
+        return result;
+    }
     public async Task<IEnumerable<User>> GetAll()
     {
         return await _usersRepository.GetAll();

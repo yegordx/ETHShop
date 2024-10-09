@@ -3,6 +3,7 @@ using System;
 using ETHShop;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ETHShop.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    partial class ShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007181815_SellerOrders")]
+    partial class SellerOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -146,7 +149,7 @@ namespace ETHShop.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("SellerID")
+                    b.Property<Guid>("SellerID")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Status")
@@ -503,7 +506,8 @@ namespace ETHShop.Migrations
                     b.HasOne("ETHShop.Entities.Seller", "Seller")
                         .WithMany("Orders")
                         .HasForeignKey("SellerID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
 
                     b.HasOne("ETHShop.Entities.User", "User")
                         .WithMany("Orders")

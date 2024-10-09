@@ -60,7 +60,7 @@ public class SellersController : ControllerBase
         return Ok(sellers);
     }
 
-    // Отримання продавця за ID
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -75,7 +75,18 @@ public class SellersController : ControllerBase
         }
     }
 
-    // Оновлення інформації про продавця
+
+    [HttpGet("getOrders/")]
+    public async Task<IActionResult> GetOrders(string sellerID)
+    {
+        var sellerId = Guid.Parse(sellerID);
+
+        var orders = await _sellersService.GetOrders(sellerId);
+
+        return Ok(orders);
+    }
+
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, UpdateSellerRequest request)
     {
@@ -99,7 +110,6 @@ public class SellersController : ControllerBase
         }
     }
 
-    // Видалення продавця за ID
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

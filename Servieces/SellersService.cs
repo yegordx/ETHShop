@@ -41,6 +41,7 @@ public class SellersService : ISellersService
     {
         var user = await _context.Users
             .AsNoTracking()
+            .Include(u=>u.Seller)
             .FirstOrDefaultAsync(u => u.UserId == UserID);
 
         if (user.Seller == null)
@@ -108,6 +109,32 @@ public class SellersService : ISellersService
 
         _context.Sellers.Remove(seller);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<OrderDto>> GetOrders(Guid sellerID)
+    {
+        var orders = await _context.Orders
+            .Where(o => o.SellerID == sellerID)
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product) // Для отримання інформації про продукти
+            .ToListAsync();
+
+        // Перетворення замовлень в DTO
+        var ordersDto = orders.Select(order => new OrderDto(
+            order.OrderID,
+            order.SellerID,
+            order.TotalPriceETH,
+            order.OrderItems.Select(oi => new OrderItemDto(
+                oi.OrderItemID,
+                oi.ProductID,
+                oi.Product.ProductName,
+                oi.Quantity,
+                oi.TotalPrice
+            )).ToList(),
+            order.OrderDate
+        )).ToList();
+
+        return ordersDto;
     }
 }
 
