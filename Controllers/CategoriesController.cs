@@ -23,19 +23,9 @@ public class CategoriesController : ControllerBase
     {
         // Отримуємо всі категорії, які не видалені
         var categories = await _context.Categories
-            .Where(c => !c.isDeleted) // Фільтрація за умовою isDeleted = false
-            .Select(c => new
-            {
-                CategoryID = c.CategoryID,
-                CategoryName = c.CategoryName,
-                Description = c.Description
-            })
+            .Where(c => !c.isDeleted)
+            .Select(c => new CategoryDto(c.CategoryID, c.CategoryName, c.Description))
             .ToListAsync();
-
-        if (categories == null || categories.Count == 0)
-        {
-            return NotFound(new { message = "No categories found." });
-        }
 
         return Ok(categories);
     }
