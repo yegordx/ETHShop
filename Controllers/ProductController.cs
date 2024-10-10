@@ -20,13 +20,13 @@ public class ProductController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateProduct(CreateProductRequest request)
     {
-        // Перевірка, чи всі необхідні поля передані
+   
         if (request == null || string.IsNullOrEmpty(request.ProductName) || request.PriceETH <= 0)
         {
             return BadRequest(new { message = "Invalid product data." });
         }
 
-        // Створюємо екземпляр продукту на основі переданого DTO
+        
         var product = new Product
         {
             ProductID = Guid.NewGuid(),
@@ -36,16 +36,16 @@ public class ProductController : ControllerBase
         };
 
         var sellerId = Guid.Parse(request.SellerID);
-        // Викликаємо метод сервісу для додавання продукту
+        
         var result = await _productsService.AddAsync(product, sellerId, request.CategoryName);
 
-        // Якщо додавання успішне, повертаємо успішну відповідь
+        
         if (result)
         {
             return Ok(new { message = "Product added successfully." });
         }
 
-        // У випадку помилки, повертаємо помилку
+        
         return StatusCode(500, new { message = "An error occurred while adding the product." });
     }
 

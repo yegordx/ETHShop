@@ -51,7 +51,7 @@ public class ShoppingCartController : ControllerBase
         return Ok();
     }
 
-    [HttpGet]
+    [HttpGet("GetItems")]
     public async Task<IActionResult> GetShoppingCartItems(string UserID)
     {
         // Конвертація UserID зі string у Guid
@@ -81,7 +81,7 @@ public class ShoppingCartController : ControllerBase
         return Ok(items);
     }
 
-    [HttpDelete("{cartItemId}")]
+    [HttpDelete("RemoveFromCart{cartItemId}")]
     public async Task<IActionResult> RemoveFromCart(string cartItemId)
     {
         try
@@ -139,7 +139,7 @@ public class ShoppingCartController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("{cartItemId}")]
+    [HttpGet("GetItemById{cartItemId}")]
     public async Task<IActionResult> GetByID(string cartItemId)
     {
         var itemId = Guid.Parse(cartItemId);

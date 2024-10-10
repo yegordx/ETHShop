@@ -7,7 +7,7 @@ using System.Linq;
 namespace ETHShop.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/orders")]
 public class OrdersController : ControllerBase
 {
     private readonly ShopDbContext _context;
@@ -35,7 +35,6 @@ public class OrdersController : ControllerBase
             return BadRequest("User not found");
         }
 
-        // Фільтруємо товари з кошика за запитом
         var cartItems = user.ShoppingCart.CartItems
             .Where(item => request.ItemsId.Contains(item.CartItemID.ToString()))
             .ToList();
@@ -64,25 +63,15 @@ public class OrdersController : ControllerBase
         var order = new Order(Guid.NewGuid(), userId, sellerId);
 
         await _context.Orders.AddAsync(order);
-        await _context.SaveChangesAsync();
-
         List<OrderItem> orderItems = order.AddOrderItems(cartItems);
-
-
         await _context.OrderItems.AddRangeAsync(orderItems);
         await _context.SaveChangesAsync();
 
-        _context.Orders.Update(order);
-        await _context.SaveChangesAsync();
 
         user.Orders.Add(order);
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-
         seller.Orders.Add(order);
-
+        _context.Users.Update(user);
         _context.Sellers.Update(seller);
-
         await _context.SaveChangesAsync();
 
         return Ok();

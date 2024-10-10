@@ -26,15 +26,19 @@ public class UserRepository : IUsersRepository
         }
 
         var shoppingCart = ShoppingCart.Create(Guid.NewGuid()).Value;
+        var wishList = WishList.Create(Guid.NewGuid(), "Default wishlist").Value;
 
         user.SetShoppingCart(shoppingCart);
+        user.AddWishList(wishList);
         shoppingCart.SetUser(user);
+        wishList.SetUser(user);
 
         await _context.Users.AddAsync(user);
         await _context.ShoppingCarts.AddAsync(shoppingCart);
+        await _context.WishLists.AddAsync(wishList);
         await _context.SaveChangesAsync();
 
-        _context.Users.Update(user);
+        _context.WishLists.Update(wishList);
         _context.ShoppingCarts.Update(shoppingCart);
 
         await _context.SaveChangesAsync();

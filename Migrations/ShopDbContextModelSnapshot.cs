@@ -156,7 +156,7 @@ namespace ETHShop.Migrations
                     b.Property<double>("TotalPriceETH")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("UserID")
+                    b.Property<Guid?>("UserID")
                         .HasColumnType("uuid");
 
                     b.HasKey("OrderID");
@@ -426,6 +426,10 @@ namespace ETHShop.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("UserID")
                         .HasColumnType("uuid");
 
@@ -503,13 +507,12 @@ namespace ETHShop.Migrations
                     b.HasOne("ETHShop.Entities.Seller", "Seller")
                         .WithMany("Orders")
                         .HasForeignKey("SellerID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ETHShop.Entities.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Seller");
 
@@ -551,13 +554,13 @@ namespace ETHShop.Migrations
                     b.HasOne("ETHShop.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("ETHShop.Entities.Seller", "Seller")
                         .WithMany("Products")
                         .HasForeignKey("SellerID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("Category");

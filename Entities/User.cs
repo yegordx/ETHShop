@@ -37,7 +37,7 @@ public class User
     public ICollection<ShippingAddress> ShippingAddresses { get; set; }
     public Seller Seller { get; set; }
     public ShoppingCart ShoppingCart { get; set; }
-    public ICollection<WishList> WishLists { get; set; }
+    public List<WishList> WishLists { get; set; } = new List<WishList>();
     public ICollection<Notification> Notifications { get; set; }
 
     public static User Create(Guid id, string userName, string PasswordHash, string email, string walletAddress)
@@ -55,6 +55,12 @@ public class User
         ShoppingCartID = shoppingCart.CartID;
         ShoppingCart = shoppingCart;
         return Result.Success(shoppingCart);
+    }
+
+    public Result AddWishList(WishList wishList)
+    {
+        WishLists.Add(wishList);
+        return Result.Success(wishList);
     }
 
     public Result SetSeller(Seller seller)

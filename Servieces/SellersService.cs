@@ -119,7 +119,7 @@ public class SellersService : ISellersService
             .ThenInclude(oi => oi.Product) // Для отримання інформації про продукти
             .ToListAsync();
 
-        // Перетворення замовлень в DTO
+        
         var ordersDto = orders.Select(order => new OrderDto(
             order.OrderID,
             order.SellerID,

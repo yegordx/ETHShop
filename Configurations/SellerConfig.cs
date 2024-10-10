@@ -18,6 +18,6 @@ public class SellerConfig : IEntityTypeConfiguration<Seller>
         builder.HasMany(s=>s.Products)
             .WithOne(s=>s.Seller)
             .HasForeignKey(s => s.SellerID)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
