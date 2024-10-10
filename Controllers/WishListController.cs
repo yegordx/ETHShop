@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ETHShop.Entities;
-using ETHShop.Servieces;
 using ETHShop.Contracts;
-using ETHShop.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ETHShop.Controllers;
@@ -12,6 +10,7 @@ namespace ETHShop.Controllers;
 public class WishListController : ControllerBase
 {
     private readonly ShopDbContext _context;
+
     public WishListController(ShopDbContext context)
     {
         _context = context;
@@ -20,36 +19,54 @@ public class WishListController : ControllerBase
     [HttpGet("getUsersWishLists")]
     public async Task<IActionResult> GetUsersWishLists(string UserId)
     {
-        var userId = Guid.Parse(UserId);
-        var wishLists = _context.WishLists
-            .Include(w => w.WishListItems)
-            .Where(w=>w.UserID == userId);
+        try
+        {
+            var userId = Guid.Parse(UserId);
+            var wishLists = await _context.WishLists
+                .Include(w => w.WishListItems)
+                .Where(w => w.UserID == userId)
+                .ToListAsync();
 
-        return Ok(wishLists);
+            return Ok(wishLists);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> Create(CreateWishListRequest request)
     {
-        var userId = Guid.Parse(request.UserId);
-        var wishList = WishList.Create(Guid.NewGuid(), request.WishListName).Value;
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.UserId == userId);
-        wishList.SetUser(user);
+        try
+        {
+            var userId = Guid.Parse(request.UserId);
+            var wishList = WishList.Create(Guid.NewGuid(), request.WishListName).Value;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
 
-        _context.WishLists.Add(wishList);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
 
-        user.AddWishList(wishList);
+            wishList.SetUser(user);
+            _context.WishLists.Add(wishList);
+            user.AddWishList(wishList);
+            _context.Users.Update(user);
 
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync(); 
-        return Ok();
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
-    [HttpPost]
+    [HttpPost("add-product")]
     public async Task<IActionResult> AddProductToWishList(string UserId, string ProductId)
     {
-
+        // Логіка для додавання продукту до списку бажань
         return Ok();
     }
 }
