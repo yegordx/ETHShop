@@ -32,9 +32,9 @@ public class User
 
     public Guid SellerId { get; private set; }
     public Guid ShoppingCartID { get; private set; }
-    public ICollection<Order> Orders { get; set; }
-    public ICollection<Review> Reviews { get; set; }
-    public ICollection<ShippingAddress> ShippingAddresses { get; set; }
+    public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public ICollection<ShippingAddress> ShippingAddresses { get; set; } = new HashSet<ShippingAddress>();
     public Seller Seller { get; set; }
     public ShoppingCart ShoppingCart { get; set; }
     public List<WishList> WishLists { get; set; } = new List<WishList>();
@@ -57,6 +57,14 @@ public class User
         return Result.Success(shoppingCart);
     }
 
+    public Result Update(string userName, string email, string passwordHash, string walletAddress)
+    {
+        UserName = userName;
+        Email = email;
+        PasswordHash = passwordHash;
+        WalletAddress = walletAddress;
+        return Result.Success();
+    }
     public Result AddWishList(WishList wishList)
     {
         WishLists.Add(wishList);
@@ -69,4 +77,16 @@ public class User
         Seller = seller;
         return Result.Success(seller);
     }
+
+    public Result AddReview(Review review)
+    {
+        Reviews.Add(review);
+        return Result.Success(review);
+    }
+    public Result AddAddress(ShippingAddress address)
+    {
+        ShippingAddresses.Add(address);
+        return Result.Success(address);
+    }
+
 }

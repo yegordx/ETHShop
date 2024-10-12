@@ -10,7 +10,7 @@ namespace ETHShop.Controllers;
 [ApiController]
 [Route("api/sellers")]
 public class SellersController : ControllerBase
-{ 
+{
     private readonly ISellersService _sellersService;
 
     public SellersController(ISellersService sellersService)
@@ -18,7 +18,7 @@ public class SellersController : ControllerBase
         _sellersService = sellersService;
     }
 
-    [HttpPost("login")]
+    [HttpPost("auth/login")]
     public async Task<IActionResult> Login(LoginSellerRequest request)
     {
         try
@@ -33,7 +33,7 @@ public class SellersController : ControllerBase
         }
     }
 
-    [HttpPost("register")]
+    [HttpPost("auth/register")]
     public async Task<IActionResult> Register(RegisterSellerRequest request)
     {
         if (!EmailChecker.IsValidEmail(request.ContactEmail))
@@ -60,7 +60,6 @@ public class SellersController : ControllerBase
         return Ok(sellers);
     }
 
-    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -75,17 +74,12 @@ public class SellersController : ControllerBase
         }
     }
 
-
-    [HttpGet("getOrders/")]
-    public async Task<IActionResult> GetOrders(string sellerID)
+    [HttpGet("{sellerId}/orders")]
+    public async Task<IActionResult> GetOrders(Guid sellerId)
     {
-        var sellerId = Guid.Parse(sellerID);
-
         var orders = await _sellersService.GetOrders(sellerId);
-
         return Ok(orders);
     }
-
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, UpdateSellerRequest request)
@@ -124,3 +118,4 @@ public class SellersController : ControllerBase
         }
     }
 }
+

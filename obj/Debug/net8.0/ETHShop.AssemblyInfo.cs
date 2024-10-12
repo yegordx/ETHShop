@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ETHShop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aed3d4e0762f53703c64ab957aa0690c85748f50")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ab0553c3cb54511fd37407291e0fd20f1f22b7c4")]
 [assembly: System.Reflection.AssemblyProductAttribute("ETHShop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ETHShop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

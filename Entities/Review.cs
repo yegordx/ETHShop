@@ -1,9 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ETHShop.Contracts;
+using System.ComponentModel.DataAnnotations;
 
 namespace ETHShop.Entities;
 
 public class Review
 {
+    public Review() { }
+    public Review(Guid id, int rating, string comment, User user, Product product) {
+        ReviewID = id;
+        Rating = rating;
+        Comment = comment;
+        ReviewDate = DateTime.UtcNow;
+        UserID = user.UserId;
+        User = user;
+        ProductID = product.ProductID;
+        Product = product;
+    }
     public Guid ReviewID { get; set; }
     public Guid ProductID { get; set; }
     public Guid UserID { get; set; }

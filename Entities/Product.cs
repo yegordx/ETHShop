@@ -27,7 +27,7 @@ public class Product
     
     public Seller Seller { get; set; }
     public Category Category { get; set; }
-    public ICollection<Review> Reviews { get; set; }
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     public Result SetCategory(Category category)
     {
@@ -41,5 +41,11 @@ public class Product
         Seller = seller;
         SellerID = seller.SellerID;
         return Result.Success();
+    }
+
+    public Result AddReview(Review review)
+    {
+        Reviews.Add(review);
+        return Result.Success(review);
     }
 }

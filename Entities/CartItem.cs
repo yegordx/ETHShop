@@ -31,14 +31,14 @@ public class CartItem
         return cartItem;
     }
 
-    public bool UpdateQuantity(string action)
+    public bool UpdateQuantity(bool action)
     {
-        if (action == "more")
+        if (action == true)
         {
             Quantity += 1;
             return true;
         }
-        else if (action == "less")
+        else if (action == false)
         {
             if (Quantity > 1)
             {

@@ -88,10 +88,10 @@ public class ProductsService : IProductsService
     }
 
     // Видалити продукт за ID
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid SellerId, Guid ProductId)
     {
-        var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == id);
-        if (product == null)
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == ProductId);
+        if (product == null||product.SellerID != SellerId)
         {
             return false;
         }
@@ -100,4 +100,20 @@ public class ProductsService : IProductsService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> UpdateAsync(Product product)
+    {
+        _context.Products.Update(product);
+        try
+        {
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+        
+    }
+
 }

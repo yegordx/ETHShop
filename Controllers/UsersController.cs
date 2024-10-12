@@ -11,20 +11,21 @@ namespace ETHShop.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+
     public UsersController(IUserService userService)
     {
         _userService = userService;
     }
 
-    [HttpPost("register")]
+    [HttpPost]
     public async Task<IActionResult> Register(RegisterUserRequest request)
     {
-        if (!EmailChecker.IsValidEmail(request.Email)) {
+        if (!EmailChecker.IsValidEmail(request.Email))
+        {
             return BadRequest("Invalid email format.");
         }
         try
         {
-            
             var token = await _userService.Register(Guid.NewGuid(), request.UserName, request.Password, request.Email, request.WalletAddress);
             var cookieOptions = new CookieOptions
             {
@@ -47,26 +48,22 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var token = await _userService.Login(request);
-
-            
-
-            return Ok(new {token });
+            var token = await _userService.Login(request.Email, request.Password);
+            return Ok(new { token });
         }
         catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
         }
     }
-    [HttpGet("getOrders/")]
-    public async Task<IActionResult> GetOrders(string UserID)
+
+    [HttpGet("{userId}/orders")]
+    public async Task<IActionResult> GetOrders(Guid userId)
     {
-        var userId = Guid.Parse(UserID);
-
         var orders = await _userService.GetOrders(userId);
-
         return Ok(orders);
     }
+
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -75,20 +72,21 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] User user)
+    public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request)
     {
-        if (id != user.UserId)
+        if (!EmailChecker.IsValidEmail(request.Email))
         {
-            return BadRequest();
+            return BadRequest("Invalid email format.");
         }
-        await _userService.Update(user);
+        await _userService.Update(id, request.UserName, request.Email, request.Password, request.WalletAddress);
         return NoContent();
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeleteUser(string email)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(Guid id)
     {
-        await _userService.Delete(email);
+        await _userService.Delete(id);
         return NoContent();
     }
 }
+

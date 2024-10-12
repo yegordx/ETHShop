@@ -17,7 +17,7 @@ public class WishList
     public string Name { get; set; }
 
     public User User { get; set; }
-    public HashSet<WishListItem> WishListItems { get; set; }
+    public List<WishListItem> WishListItems { get; set; } = new List<WishListItem>();
 
     public void SetUser(User user)
     {
@@ -28,5 +28,12 @@ public class WishList
     {
         var wishList = new WishList(id, Name);
         return Result.Success(wishList);
+    }
+
+    public WishListItem AddItem(Product product)
+    {
+        var wishListItem = new WishListItem(Guid.NewGuid(),product, WishListID);
+        WishListItems.Add(wishListItem);
+        return wishListItem;
     }
 }

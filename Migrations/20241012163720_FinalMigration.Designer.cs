@@ -3,6 +3,7 @@ using System;
 using ETHShop;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ETHShop.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    partial class ShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241012163720_FinalMigration")]
+    partial class FinalMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,9 +152,6 @@ namespace ETHShop.Migrations
                     b.Property<Guid?>("SellerID")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ShippingAddressID")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -165,8 +165,6 @@ namespace ETHShop.Migrations
                     b.HasKey("OrderID");
 
                     b.HasIndex("SellerID");
-
-                    b.HasIndex("ShippingAddressID");
 
                     b.HasIndex("UserID");
 
@@ -351,6 +349,7 @@ namespace ETHShop.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PostalCode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Surname")
@@ -513,19 +512,12 @@ namespace ETHShop.Migrations
                         .HasForeignKey("SellerID")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("ETHShop.Entities.ShippingAddress", "ShippingAddress")
-                        .WithMany()
-                        .HasForeignKey("ShippingAddressID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("ETHShop.Entities.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Seller");
-
-                    b.Navigation("ShippingAddress");
 
                     b.Navigation("User");
                 });

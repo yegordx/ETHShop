@@ -21,7 +21,6 @@ public class CategoriesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        // Отримуємо всі категорії, які не видалені
         var categories = await _context.Categories
             .Where(c => !c.isDeleted)
             .Select(c => new CategoryDto(c.CategoryID, c.CategoryName, c.Description))
@@ -44,17 +43,15 @@ public class CategoriesController : ControllerBase
     {
         var categoryGuid = Guid.Parse(categoryId);
 
-        // Знаходимо категорію
         var category = await _context.Categories
-            .Include(c => c.Products) 
-            .FirstOrDefaultAsync(c => c.CategoryID == categoryGuid && !c.isDeleted); 
+            .Include(c => c.Products)
+            .FirstOrDefaultAsync(c => c.CategoryID == categoryGuid && !c.isDeleted);
 
         if (category == null)
         {
             return NotFound(new { message = "Category not found or has been deleted." });
         }
 
-        // Підготовка відповіді
         var response = new
         {
             CategoryName = category.CategoryName,
@@ -75,7 +72,6 @@ public class CategoriesController : ControllerBase
     {
         var categoryGuid = Guid.Parse(categoryId);
 
-        // Знаходимо категорію
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryID == categoryGuid);
 
         if (category == null)
@@ -83,7 +79,6 @@ public class CategoriesController : ControllerBase
             return NotFound(new { message = "Category not found." });
         }
 
-        // Оновлюємо назву і опис
         category.CategoryName = request.CategoryName;
         category.Description = request.Description;
 
@@ -98,7 +93,6 @@ public class CategoriesController : ControllerBase
     {
         var categoryGuid = Guid.Parse(categoryId);
 
-        // Знаходимо категорію
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryID == categoryGuid);
 
         if (category == null)
@@ -106,7 +100,6 @@ public class CategoriesController : ControllerBase
             return NotFound(new { message = "Category not found." });
         }
 
-        // Ставимо isDeleted = true
         category.isDeleted = true;
 
         _context.Categories.Update(category);
@@ -115,12 +108,11 @@ public class CategoriesController : ControllerBase
         return Ok(new { message = "Category marked as deleted." });
     }
 
-    [HttpPut("restore/{categoryId}")]
+    [HttpPut("{categoryId}/restore")]
     public async Task<IActionResult> Restore(string categoryId)
     {
         var categoryGuid = Guid.Parse(categoryId);
 
-        // Знаходимо категорію
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryID == categoryGuid);
 
         if (category == null)
@@ -128,7 +120,6 @@ public class CategoriesController : ControllerBase
             return NotFound(new { message = "Category not found." });
         }
 
-        // Відновлюємо категорію
         category.isDeleted = false;
 
         _context.Categories.Update(category);

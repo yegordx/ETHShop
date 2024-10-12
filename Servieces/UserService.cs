@@ -39,11 +39,11 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<string> Login(LoginUserRequest request)
+    public async Task<string> Login(string Email, string Password)
     {
-        var user = await _usersRepository.GetByEmail(request.Email);
+        var user = await _usersRepository.GetByEmail(Email);
 
-        var result = _passwordHasher.Verify(request.Password, user.PasswordHash);
+        var result = _passwordHasher.Verify(Password, user.PasswordHash);
 
         if (result == false)
         {
@@ -67,12 +67,13 @@ public class UserService : IUserService
     {
         return await _usersRepository.GetByEmail(email);
     }
-    public async Task Update(User user)
+    public async Task Update(Guid Id, string UserName, string Email, string Password, string WalletAddress)
     {
-        await _usersRepository.Update(user);
+        var hashedPassword = _passwordHasher.Generate(Password);
+        await _usersRepository.Update(Id, UserName, Email, hashedPassword, WalletAddress);
     }
-    public async Task Delete(string email)
+    public async Task Delete(Guid Id)
     {
-        await _usersRepository.Delete(email);
+        await _usersRepository.Delete(Id);
     }
 }

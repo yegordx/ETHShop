@@ -11,6 +11,7 @@ public interface IProductsService
     Task<bool> EditAsync(Product product);
     Task<bool> AddAsync(Product product, Guid SellerID, string CategoryName);
 
-    Task<bool> DeleteAsync(Guid id);
+    Task<bool> DeleteAsync(Guid SellerId, Guid ProductId);
+    Task<bool> UpdateAsync(Product product);
 }
 

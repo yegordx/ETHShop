@@ -17,59 +17,46 @@ public class ShoppingCartController : ControllerBase
         _context = context;
     }
 
-    [HttpPost("AddToCart")]
-    public async Task<IActionResult> AddProductToCart(AddProductToCartRequest request)
+    [HttpPost("{userId}/items")]
+    public async Task<IActionResult> AddProductToCart(string userId, AddProductToCartRequest request)
     {
-        var userID = Guid.Parse(request.UserID);
+        var userID = Guid.Parse(userId);
         var productID = Guid.Parse(request.ProductID);
 
-        var product = await _context.Products
-            .FirstOrDefaultAsync(u => u.ProductID == productID);
-
-
-
-        var shoppingCart = await _context.ShoppingCarts
-           .FirstOrDefaultAsync(u => u.UserId == userID);
+        var product = await _context.Products.FirstOrDefaultAsync(u => u.ProductID == productID);
+        var shoppingCart = await _context.ShoppingCarts.FirstOrDefaultAsync(u => u.UserId == userID);
 
         if (product == null || shoppingCart == null)
         {
-            return BadRequest();
+            return BadRequest(new { message = "Product or shopping cart not found." });
         }
 
         var cartItem = CartItem.Create(Guid.NewGuid(), shoppingCart, product);
-
         await _context.CartItems.AddAsync(cartItem);
-
         await _context.SaveChangesAsync();
 
         shoppingCart.AddCartItem(cartItem);
-
         _context.ShoppingCarts.Update(shoppingCart);
-
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Ok(new { message = "Product added to cart successfully." });
     }
 
-    [HttpGet("GetItems")]
-    public async Task<IActionResult> GetShoppingCartItems(string UserID)
+    [HttpGet("{userId}/items")]
+    public async Task<IActionResult> GetShoppingCartItems(string userId)
     {
-        // Конвертація UserID зі string у Guid
-        var userID = Guid.Parse(UserID);
+        var userID = Guid.Parse(userId);
 
-        // Отримання ShoppingCart разом із CartItems
         var shoppingCart = await _context.ShoppingCarts
             .Include(sc => sc.CartItems)
-            .ThenInclude(ci => ci.Product) // Завантажуємо продукт для кожного CartItem
+            .ThenInclude(ci => ci.Product)
             .FirstOrDefaultAsync(sc => sc.UserId == userID);
 
-        // Перевірка, чи знайдено ShoppingCart
         if (shoppingCart == null)
         {
             return NotFound(new { message = "Shopping cart not found." });
         }
 
-        // Формуємо список елементів у кошику
         var items = shoppingCart.CartItems
             .Select(ci => new CartItemDto(
                 ci.CartItemID,
@@ -81,43 +68,28 @@ public class ShoppingCartController : ControllerBase
         return Ok(items);
     }
 
-    [HttpDelete("RemoveFromCart{cartItemId}")]
+    [HttpDelete("items/{cartItemId}")]
     public async Task<IActionResult> RemoveFromCart(string cartItemId)
     {
-        try
+        var itemID = Guid.Parse(cartItemId);
+
+        var cartItem = await _context.CartItems.FirstOrDefaultAsync(ci => ci.CartItemID == itemID);
+        if (cartItem == null)
         {
-            var itemID = Guid.Parse(cartItemId);
-
-            var cartItem = await _context.CartItems
-                .FirstOrDefaultAsync(ci => ci.CartItemID == itemID);
-
-            if (cartItem == null)
-            {
-                return NotFound(new { message = "Cart item not found." });
-            }
-
-            // Видаляємо товар із кошика
-            _context.CartItems.Remove(cartItem);
-
-            // Зберігаємо зміни в базі даних
-            await _context.SaveChangesAsync();
-
-            // Повертаємо відповідь про успішне видалення
-            return Ok(new { message = "Item removed from cart successfully." });
+            return NotFound(new { message = "Cart item not found." });
         }
-        catch (Exception ex)
-        {
-            // Обробляємо можливі помилки
-            return BadRequest(new { message = $"An error occurred: {ex.Message}" });
-        }
+
+        _context.CartItems.Remove(cartItem);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Item removed from cart successfully." });
     }
 
-    [HttpPut]
-    public async Task<IActionResult> UpdateCartItemQuantity(string cartItemId, string action)
+    [HttpPut("items/{cartItemId}")]
+    public async Task<IActionResult> UpdateCartItemQuantity(string cartItemId, bool action)
     {
         var itemId = Guid.Parse(cartItemId);
 
-        // Знайти товар у кошику за ID
         var cartItem = await _context.CartItems
             .FirstOrDefaultAsync(ci => ci.CartItemID == itemId);
 
@@ -126,7 +98,6 @@ public class ShoppingCartController : ControllerBase
             return NotFound(new { message = "Cart item not found." });
         }
 
-        // Залежно від параметра 'action' збільшуємо або зменшуємо кількість
         bool result = cartItem.UpdateQuantity(action);
 
         if (result)
@@ -139,14 +110,13 @@ public class ShoppingCartController : ControllerBase
         return BadRequest();
     }
 
-    [HttpGet("GetItemById{cartItemId}")]
+    [HttpGet("items/{cartItemId}")]
     public async Task<IActionResult> GetByID(string cartItemId)
     {
         var itemId = Guid.Parse(cartItemId);
 
-        // Знайти товар у кошику за ID
         var cartItem = await _context.CartItems
-            .Include(ci => ci.Product) // Опціонально, якщо треба отримати дані продукту
+            .Include(ci => ci.Product)
             .FirstOrDefaultAsync(ci => ci.CartItemID == itemId);
 
         if (cartItem == null)
@@ -154,14 +124,14 @@ public class ShoppingCartController : ControllerBase
             return NotFound(new { message = "Cart item not found." });
         }
 
-        // Підготовка даних для відповіді (опціонально, можна повертати весь об'єкт)
         var response = new CartItemDto(
-            cartItem.CartItemID, 
-            cartItem.Product.ProductName, 
-            cartItem.Product.PriceETH, 
+            cartItem.CartItemID,
+            cartItem.Product.ProductName,
+            cartItem.Product.PriceETH,
             cartItem.Quantity
-            );
+        );
 
         return Ok(response);
     }
 }
+

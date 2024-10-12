@@ -16,18 +16,28 @@ public class WishListController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("getUsersWishLists")]
-    public async Task<IActionResult> GetUsersWishLists(string UserId)
+    [HttpGet("{userId}")]
+    public async Task<IActionResult> GetUsersWishLists(string userId)
     {
         try
         {
-            var userId = Guid.Parse(UserId);
+            var userIdGuid = Guid.Parse(userId);
             var wishLists = await _context.WishLists
                 .Include(w => w.WishListItems)
-                .Where(w => w.UserID == userId)
+                .ThenInclude(wi => wi.Product)
+                .Where(w => w.UserID == userIdGuid)
                 .ToListAsync();
 
-            return Ok(wishLists);
+            var wishListsDto = wishLists.Select(w => new WishListDto(w.WishListID, w.Name, 
+                w.WishListItems.Select(wi => new WishListItemDto(
+                    wi.WishListItemID, 
+                    wi.ProductID, 
+                    wi.Product.ProductName, 
+                    wi.DateAdded))
+                .ToList()))
+                .ToList();
+
+            return Ok(wishListsDto);
         }
         catch (Exception ex)
         {
@@ -35,7 +45,7 @@ public class WishListController : ControllerBase
         }
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create(CreateWishListRequest request)
     {
         try
@@ -63,10 +73,61 @@ public class WishListController : ControllerBase
         }
     }
 
-    [HttpPost("add-product")]
-    public async Task<IActionResult> AddProductToWishList(string UserId, string ProductId)
+    [HttpPost("{wishlistId}/products")]
+    public async Task<IActionResult> AddProductToWishList(AddProductToWishListRequest request)
     {
-        // Логіка для додавання продукту до списку бажань
+        var wishlistId = Guid.Parse(request.WishListID);
+        var productID = Guid.Parse(request.ProductID);
+
+        var wishList = await _context.WishLists
+            .FirstOrDefaultAsync(w => w.WishListID == wishlistId);
+
+        var product = await _context.Products
+            .FirstOrDefaultAsync(p => p.ProductID == productID);
+
+        if (product == null)
+        {
+            return NotFound(new { message = "Product not found." });
+        }
+
+        if (wishList == null)
+        {
+            return NotFound(new { message = "WishList not found." });
+        }
+
+        var wishItem = wishList.AddItem(product);
+        _context.WishListItems.Add(wishItem);
+        _context.WishLists.Update(wishList);
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteWishList(string id)
+    {
+        var wishId = Guid.Parse(id);
+        var wishList = await _context.WishLists.FirstOrDefaultAsync(w => w.WishListID == wishId);
+        if (wishList == null)
+        {
+            return BadRequest();
+        }
+
+        _context.WishLists.Remove(wishList);
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpDelete("remove/{id}")]
+    public async Task<IActionResult> RemoveFromWishList(string id)
+    {
+        var wiId = Guid.Parse(id);
+        var wishListItem = await _context.WishListItems.FirstOrDefaultAsync(wi => wi.WishListItemID == wiId);
+        if (wishListItem == null)
+        {
+            return BadRequest();
+        }
+        _context.WishListItems.Remove(wishListItem);
+        await _context.SaveChangesAsync();
         return Ok();
     }
 }

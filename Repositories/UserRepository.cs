@@ -44,6 +44,20 @@ public class UserRepository : IUsersRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task<User> GetById(Guid Id)
+    {
+        var userEntity = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.UserId == Id);
+
+        if (userEntity == null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+
+        return userEntity;
+    }
+
     public async Task<User> GetByEmail(string email)
     {
         var userEntity = await _context.Users
@@ -58,22 +72,29 @@ public class UserRepository : IUsersRepository
         return userEntity;
     }
 
-
     public async Task<IEnumerable<User>> GetAll()
     {
         var userlist = await _context.Users.ToListAsync();
         return userlist;
     }
 
-    public async Task Update(User user)
+    public async Task Update(Guid Id, string UserName, string Email, string HashedPassword, string WalletAddress)
     {
-        _context.Users.Update(user);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == Id);
+
+        if (user == null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+
+        user.Update(UserName, Email, HashedPassword, WalletAddress);
+
         await _context.SaveChangesAsync();
     }
 
-    public async Task Delete(string email)
+    public async Task Delete(Guid Id)
     {
-        var user = await GetByEmail(email);
+        var user = await GetById(Id);
         if (user == null)
         {
             throw new InvalidOperationException("User not found");

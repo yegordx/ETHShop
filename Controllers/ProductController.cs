@@ -7,7 +7,6 @@ namespace ETHShop.Controllers;
 
 [ApiController]
 [Route("api/products")]
-
 public class ProductController : ControllerBase
 {
     private readonly IProductsService _productsService;
@@ -20,13 +19,11 @@ public class ProductController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateProduct(CreateProductRequest request)
     {
-   
         if (request == null || string.IsNullOrEmpty(request.ProductName) || request.PriceETH <= 0)
         {
             return BadRequest(new { message = "Invalid product data." });
         }
 
-        
         var product = new Product
         {
             ProductID = Guid.NewGuid(),
@@ -36,30 +33,32 @@ public class ProductController : ControllerBase
         };
 
         var sellerId = Guid.Parse(request.SellerID);
-        
+
         var result = await _productsService.AddAsync(product, sellerId, request.CategoryName);
 
-        
         if (result)
         {
-            return Ok(new { message = "Product added successfully." });
+            return CreatedAtAction(nameof(GetById), new { id = product.ProductID }, new { message = "Product added successfully.", productId = product.ProductID });
         }
 
-        
         return StatusCode(500, new { message = "An error occurred while adding the product." });
     }
 
     [HttpGet]
-    public async Task<GetProductsResponse> GetAll()
+    public async Task<IActionResult> GetAll()
     {
         var products = await _productsService.GetAllAsync();
+
+        if (products == null || !products.Any())
+        {
+            return NotFound(new { message = "No products found." });
+        }
 
         var productsDto = products
             .Select(c => new ProductDto(c.ProductID, c.ProductName, c.Description, c.PriceETH))
             .ToList();
 
-        var response = new GetProductsResponse(productsDto);
-        return response;
+        return Ok(new GetProductsResponse(productsDto));
     }
 
     [HttpGet("{id}")]
@@ -76,10 +75,39 @@ public class ProductController : ControllerBase
         return Ok(productDto);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateProduct(Guid id, UpdateProductRequest request)
     {
-        var deleted = await _productsService.DeleteAsync(id);
+        if (request == null || string.IsNullOrEmpty(request.ProductName) || request.PriceETH <= 0)
+        {
+            return BadRequest(new { message = "Invalid product data." });
+        }
+
+        var product = await _productsService.GetByIdAsync(id);
+
+        if (product == null)
+        {
+            return NotFound(new { message = "Product not found." });
+        }
+
+        product.ProductName = request.ProductName;
+        product.Description = request.Description;
+        product.PriceETH = request.PriceETH;
+
+        var result = await _productsService.UpdateAsync(product);
+
+        if (result)
+        {
+            return Ok(new { message = "Product updated successfully." });
+        }
+
+        return StatusCode(500, new { message = "An error occurred while updating the product." });
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromQuery] Guid SellerId, [FromQuery] Guid ProductId)
+    {
+        var deleted = await _productsService.DeleteAsync(SellerId, ProductId);
 
         if (!deleted)
         {
@@ -89,4 +117,5 @@ public class ProductController : ControllerBase
         return Ok(new { message = "Product deleted successfully." });
     }
 }
+
 
