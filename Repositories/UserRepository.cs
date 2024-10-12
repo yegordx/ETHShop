@@ -124,7 +124,16 @@ public class UserRepository : IUsersRepository
                 oi.Quantity,
                 oi.TotalPrice
             )).ToList(),
-            order.OrderDate
+            order.OrderDate,
+            new ShippingAddressDto(
+                    order.ShippingAddress.AddressID,
+                    order.ShippingAddress.Name,
+                    order.ShippingAddress.Surname,
+                    order.ShippingAddress.Country,
+                    order.ShippingAddress.City,
+                    order.ShippingAddress.AddressLine,
+                    order.ShippingAddress.PostalCode
+                )
         )).ToList();
 
         return ordersDto;

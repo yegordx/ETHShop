@@ -49,4 +49,10 @@ public class Order
 
         return orderItems;
     }
+    
+    public void SetAddress(ShippingAddress shippingAddress)
+    {
+        ShippingAddress = shippingAddress;
+        ShippingAddressID = shippingAddress.AddressID;
+    }
 }

@@ -21,14 +21,17 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> MakeOrder(CreateOrdetRequest request)
     {
         var userId = Guid.Parse(request.UserId);
+        var addressId = Guid.Parse(request.AddressId);
 
-        // Отримуємо користувача та його кошик
         var user = await _context.Users
             .Include(x => x.ShoppingCart)
             .ThenInclude(cart => cart.CartItems)
             .ThenInclude(items => items.Product)
             .ThenInclude(prod => prod.Seller)
             .FirstOrDefaultAsync(u => u.UserId == userId);
+
+        var address = await _context.ShippingAddresses
+            .FirstOrDefaultAsync(a=>a.AddressID == addressId);
 
         if (user == null)
         {
@@ -44,7 +47,6 @@ public class OrdersController : ControllerBase
             return BadRequest("No valid items in the shopping cart");
         }
 
-        // Перевіряємо, що всі товари мають одного продавця
         var sellerId = cartItems.First().Product.SellerID;
         if (!cartItems.All(item => item.Product.Seller.SellerID == sellerId))
         {
@@ -61,6 +63,8 @@ public class OrdersController : ControllerBase
         }
 
         var order = new Order(Guid.NewGuid(), userId, sellerId);
+
+        order.SetAddress(address);
 
         await _context.Orders.AddAsync(order);
         List<OrderItem> orderItems = order.AddOrderItems(cartItems);
@@ -82,19 +86,19 @@ public class OrdersController : ControllerBase
     {
         var userId = Guid.Parse(userID);
 
-        // Отримуємо користувача разом із замовленнями і товарами в них
         var user = await _context.Users
             .Include(u => u.Orders)
             .ThenInclude(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
+            .Include(u => u.Orders)
+            .ThenInclude(o => o.ShippingAddress)
             .FirstOrDefaultAsync(u => u.UserId == userId);
 
         if (user == null)
         {
             return NotFound("User not found");
         }
-
-        // Проекція до OrderDto
+        
         var ordersDto = user.Orders.Select(order => new OrderDto(
             order.OrderID,
             order.SellerID,
@@ -106,10 +110,20 @@ public class OrdersController : ControllerBase
                 oi.Quantity,
                 oi.TotalPrice
             )).ToList(),
-            order.OrderDate
+            order.OrderDate,
+            new ShippingAddressDto(
+                    order.ShippingAddress.AddressID,
+                    order.ShippingAddress.Name,
+                    order.ShippingAddress.Surname,
+                    order.ShippingAddress.Country,
+                    order.ShippingAddress.City,
+                    order.ShippingAddress.AddressLine,
+                    order.ShippingAddress.PostalCode
+                )
         )).ToList();
 
         return Ok(ordersDto);
     }
+
 
 }
