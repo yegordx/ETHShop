@@ -43,7 +43,7 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpPost("/login")]
+    [HttpPost("login")]
     public async Task<IActionResult> Login(LoginUserRequest request)
     {
         try
