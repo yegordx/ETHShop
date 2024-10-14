@@ -27,7 +27,7 @@ namespace ETHShop
             {
                 options.AddDefaultPolicy(policy =>
                 {
-                    policy.WithOrigins("https://avet.netlify.app", "http://localhost:5173/");
+                    policy.WithOrigins("https://avet.netlify.app", "http://localhost:5173");
                     policy.AllowAnyHeader();
                     policy.AllowAnyMethod();
                 });
