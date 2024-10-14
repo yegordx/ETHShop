@@ -18,7 +18,7 @@ public class SellersController : ControllerBase
         _sellersService = sellersService;
     }
 
-    [HttpPost("auth/login")]
+    [HttpPost("login")]
     public async Task<IActionResult> Login(LoginSellerRequest request)
     {
         try
@@ -33,7 +33,7 @@ public class SellersController : ControllerBase
         }
     }
 
-    [HttpPost("auth/register")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterSellerRequest request)
     {
         if (!EmailChecker.IsValidEmail(request.ContactEmail))
