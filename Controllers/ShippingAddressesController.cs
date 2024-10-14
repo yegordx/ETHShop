@@ -45,7 +45,6 @@ public class ShippingAddressesController : ControllerBase
             return NotFound(new { message = "Address not found." });
         }
 
-        // Оновлюємо поля адреси
         address.Name = request.Name;
         address.Surname = request.Surname;
         address.Country = request.Country;

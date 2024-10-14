@@ -18,7 +18,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> MakeOrder(CreateOrdetRequest request)
+    public async Task<IActionResult> MakeOrder(CreateOrderRequest request)
     {
         var userId = Guid.Parse(request.UserId);
         var addressId = Guid.Parse(request.AddressId);
@@ -125,5 +125,26 @@ public class OrdersController : ControllerBase
         return Ok(ordersDto);
     }
 
+    [HttpDelete]
+    public async Task<IActionResult> ClearUsersOrderHistory(string UserId)
+    {
+        var userId = Guid.Parse(UserId);
+
+        var user = await _context.Users
+            .Include(u => u.Orders)
+            .ThenInclude(o => o.OrderItems)
+            .FirstOrDefaultAsync(u => u.UserId == userId);
+
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        _context.Orders.RemoveRange(user.Orders);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Order history cleared." });
+    }
 
 }
